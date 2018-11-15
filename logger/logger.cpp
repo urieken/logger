@@ -5,9 +5,8 @@
 #include<iomanip>
 #include<sstream>
 
-#if WIN32
+#if defined WIN32 || defined WIN64
 #include <Windows.h>
-#undef ERROR
 #endif
 
 std::unique_ptr<Logger> Logger::m_pIinstance;
@@ -27,10 +26,10 @@ void Logger::Initialize() {
 std::string Logger::getLogLevelString(const Logger::LOG_LEVEL& _logLevel) {
 	std::stringstream tempString{};
 	switch (_logLevel) {
-	case LOG_LEVEL::INFO: tempString << "INFO" << std::setw(10) << std::setfill(' '); break;
-	case LOG_LEVEL::WARNING: tempString << "WARNING" << std::setw(10) << std::setfill(' '); break;
-	case LOG_LEVEL::ERROR: tempString << "ERROR" << std::setw(10) << std::setfill(' '); break;
-	case LOG_LEVEL::FATAL: tempString << "FATAL" << std::setw(10) << std::setfill(' '); break;
+	case LOG_LEVEL::_INFO: tempString << "INFO" << std::setw(10) << std::setfill(' '); break;
+	case LOG_LEVEL::_WARNING: tempString << "WARNING" << std::setw(10) << std::setfill(' '); break;
+	case LOG_LEVEL::_ERROR: tempString << "ERROR" << std::setw(10) << std::setfill(' '); break;
+	case LOG_LEVEL::_FATAL: tempString << "FATAL" << std::setw(10) << std::setfill(' '); break;
 	default: tempString << "UNKNOWN" << std::setw(10) << std::setfill(' '); break;
 	}
 	return tempString.str();
@@ -73,22 +72,27 @@ std::string Logger::getTimeString() {
 }
 
 void Logger::Log(const std::string& _entry, const Logger::LOG_LEVEL& _logLevel) {
-	// Move this to a new class (LogWriter, ConsoleWriter, or FileWriter)
-#if WIN32
+	std::stringstream ss;
+	ss << "[" << std::setfill('0') << std::setw(6) << ++m_line << "]["
+		<< getTimeString() << "][" << getLogLevelString(_logLevel) << "]"
+		<< _entry;
+
+// Move this to a new class (LogWriter, ConsoleWriter, or FileWriter)
+#if defined WIN32 || defined WIN64
 	HANDLE hConsole = ::GetStdHandle(STD_OUTPUT_HANDLE);
+	
 	int color = 10;
 	switch (_logLevel) {
-	case LOG_LEVEL::INFO:    color = 2;  break;
-	case LOG_LEVEL::WARNING: color = 6;  break;
-	case LOG_LEVEL::ERROR:   color = 4;  break;
-	case LOG_LEVEL::FATAL:   color = 12; break;
-	default:                 color = 7;  break;
+	case LOG_LEVEL::_INFO:    color = 2;  break;
+	case LOG_LEVEL::_WARNING: color = 6;  break;
+	case LOG_LEVEL::_ERROR:   color = 4;  break;
+	case LOG_LEVEL::_FATAL:   color = 12; break;
+	default:                  color = 7;  break;
 	}
+
 	::SetConsoleTextAttribute(hConsole, color);
-	std::cout << "[" << std::setfill('0') << std::setw(6) << ++m_line
-		<< "][" << getTimeString() << "][" << getLogLevelString(_logLevel) << "]"
-		<< _entry << std::endl;
-	::SetConsoleTextAttribute(hConsole, 7);
+	std::cout << ss.str() << std::endl;
+	::SetConsoleTextAttribute(hConsole, 7);	
 #else
 	std::cout << "\033[1;31m[" << std::setfill('0') << std::setw(6) << ++m_line
 		<< "][" << getTimeString() << "]["

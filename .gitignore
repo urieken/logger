@@ -1,4 +1,5 @@
 /.vs
 /bin
 /bin-int
+/logger/*.user
 /logger_app/*.user

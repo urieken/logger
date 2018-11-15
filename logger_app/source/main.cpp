@@ -7,16 +7,23 @@ int main(int argc, char** argv) {
 		LOG_INFO(std::string("ARGUMENT COUNT : ") + std::to_string(argc));
 		LOG_WARNING(std::string("PROGRAM        : ") + argv[0]);
 
-		LOG_TEST<std::string, Logger::LOG_LEVEL>(__FUNCTION__, Logger::LOG_LEVEL::INFO);
-		LOG_TEST<std::string, Logger::LOG_LEVEL>(__FUNCTION__, Logger::LOG_LEVEL::WARNING);
-		LOG_TEST<std::string, Logger::LOG_LEVEL>(__FUNCTION__, Logger::LOG_LEVEL::ERROR);
-		LOG_TEST<std::string, Logger::LOG_LEVEL>(__FUNCTION__, Logger::LOG_LEVEL::FATAL);
-		LOG_TEST(__FUNCTION__, Logger::LOG_LEVEL::INFO);
-		LOG_TEST(__FUNCTION__, Logger::LOG_LEVEL::WARNING);
-		LOG_TEST(__FUNCTION__, Logger::LOG_LEVEL::ERROR);
-		LOG_TEST(__FUNCTION__, Logger::LOG_LEVEL::FATAL);
+		LOG<std::string, Logger::LOG_LEVEL>(__FUNCTION__, Logger::LOG_LEVEL::_INFO);
+		LOG<std::string, Logger::LOG_LEVEL>(__FUNCTION__, Logger::LOG_LEVEL::_WARNING);
+		LOG<std::string, Logger::LOG_LEVEL>(__FUNCTION__, Logger::LOG_LEVEL::_ERROR);
+		LOG<std::string, Logger::LOG_LEVEL>(__FUNCTION__, Logger::LOG_LEVEL::_FATAL);
+		LOG(__FUNCTION__, Logger::LOG_LEVEL::_INFO);
+		LOG(__FUNCTION__, Logger::LOG_LEVEL::_WARNING);
+		LOG(__FUNCTION__, Logger::LOG_LEVEL::_ERROR);
+		LOG(__FUNCTION__, Logger::LOG_LEVEL::_FATAL);
+		{
+			LOG_SCOPE(__FUNCTION__);
+			LOG(__FUNCTION__, Logger::LOG_LEVEL::_INFO);
+			LOG(__FUNCTION__, Logger::LOG_LEVEL::_WARNING);
+			LOG(__FUNCTION__, Logger::LOG_LEVEL::_ERROR);
+			LOG(__FUNCTION__, Logger::LOG_LEVEL::_FATAL);
+		}
 
-		__FATAL(__FUNCTION__); 
+		LOG_FATAL(__FUNCTION__); 
 	}
 	std::cin.get();
 

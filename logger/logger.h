@@ -7,13 +7,6 @@
 #include <sstream>
 #include <iostream>
 
-// Move this to a proper place
-#ifdef _MSC_VER
-#define ASSERT(x) if (!(x)) __debugbreak()
-#else
-#endif // _MSC_VER
-
-
 /*! \brief Class for logging events at runtime
 *
 * A singleton class that is used to display/log events at runtime.
@@ -25,6 +18,7 @@ class Logger {
 	static std::once_flag m_onceFlag;
 	//! Log entry counter
 	unsigned int m_line;
+
 	//! Default CTOR
 	Logger() = default;
 	//! Deleted copy constructor
@@ -40,13 +34,13 @@ public:
 	*/
 	enum class LOG_LEVEL {
 		//! For information logs
-		INFO = 0,
+		_INFO = 0,
 		//! For warning logs
-		WARNING,
+		_WARNING,
 		//! For error logs
-		ERROR,
+		_ERROR,
 		//! For fatal/crash logs
-		FATAL
+		_FATAL
 	};
 	//! DTOR
 	inline virtual ~Logger() {}
@@ -101,41 +95,32 @@ public:
 	ScopeLogger& operator =  (const ScopeLogger& _other) = delete;
 };
 
-#if _DEBUG // Or Non distibution build
-#define LOG_SCOPE(a)   ScopeLogger scopeLogger(a)
-
-template<typename T>
-constexpr auto LOG_INFO(T a) { return Logger::Instance().Log(a, Logger::LOG_LEVEL::INFO); }
-
-template<typename T>
-constexpr auto LOG_WARNING(T a) { return Logger::Instance().Log(a, Logger::LOG_LEVEL::WARNING); }
-
-template<typename T>
-constexpr auto LOG_ERROR(T a) { return Logger::Instance().Log(a, Logger::LOG_LEVEL::ERROR); }
-
-template<typename T>
-constexpr auto LOG_FATAL(T a) { return Logger::Instance().Log(a, Logger::LOG_LEVEL::FATAL); }
-
-template<typename T>
-constexpr auto __FATAL(T a) {return Logger::Instance().Log(a, Logger::LOG_LEVEL::FATAL); }
+//template<typename T>
+//constexpr auto LOG_INFO(T a) { return Logger::Instance().Log(a, Logger::LOG_LEVEL::_INFO); }
+//
+//template<typename T>
+//constexpr auto LOG_WARNING(T a) { return Logger::Instance().Log(a, Logger::LOG_LEVEL::_WARNING); }
+//
+//template<typename T>
+//constexpr auto LOG_ERROR(T a) { return Logger::Instance().Log(a, Logger::LOG_LEVEL::_ERROR); }
+//
+//template<typename T>
+//constexpr auto LOG_FATAL(T a) { return Logger::Instance().Log(a, Logger::LOG_LEVEL::_FATAL); }
+//
+//template<typename T>
+//constexpr auto __FATAL(T a) {return Logger::Instance().Log(a, Logger::LOG_LEVEL::_FATAL); }
 
 template<typename T1, typename T2>
-constexpr auto LOG_TEST(T1 a, T2 b) { 
-	//T1 temp = a;
-	//T2 level;
-	//switch (b)
-	//{
-	//case Logger::LOG_LEVEL::INFO: level = b; break;
-	//case Logger::LOG_LEVEL::WARNING: level = b; break;
-	//case Logger::LOG_LEVEL::ERROR: level = b; break;
-	//case Logger::LOG_LEVEL::FATAL: level = b; break;
-	//}
-	//return Logger::Instance().Log(a, level); 
-	return Logger::Instance().Log(a, b);
-}
+constexpr auto LOG(T1 a, T2 b) { return Logger::Instance().Log(a, b); }
+
+#if _DEBUG // Or Non distibution build
+#define LOG_SCOPE(a)    ScopeLogger scopeLogger(a)
+#define LOG_INFO(a)     LOG(a, Logger::LOG_LEVEL::_INFO)
+#define LOG_WARNING(a)  LOG(a, Logger::LOG_LEVEL::_WARNING)
+#define LOG_ERROR(a)    LOG(a, Logger::LOG_LEVEL::_ERROR)
+#define LOG_FATAL(a)    LOG(a, Logger::LOG_LEVEL::_FATAL)
 #else
 #define LOG_SCOPE(a)    (void)(a)
-#define LOG(a)          (void)(a)
 #define LOG_INFO(a)     (void)(a)
 #define LOG_WARNING(a)  (void)(a)
 #define LOG_ERROR(a)    (void)(a)
@@ -144,4 +129,3 @@ constexpr auto LOG_TEST(T1 a, T2 b) {
 #endif
 
 #endif // __LOGGER_H__
-//void Logger::Log(const std::string& _entry, const Logger::LOG_LEVEL& _logLevel)
