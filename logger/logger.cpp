@@ -32,10 +32,10 @@ void Logger::Initialize() {
 std::string Logger::getLogLevelString(const Logger::LOG_LEVEL& _logLevel) {
 	std::stringstream tempString{};
 	switch (_logLevel) {
-	case LOG_LEVEL::_INFO: tempString << "INFO" << std::setw(10) << std::setfill(' '); break;
+	case LOG_LEVEL::_INFO   : tempString << "INFO"    << std::setw(10) << std::setfill(' '); break;
 	case LOG_LEVEL::_WARNING: tempString << "WARNING" << std::setw(10) << std::setfill(' '); break;
-	case LOG_LEVEL::_ERROR: tempString << "ERROR" << std::setw(10) << std::setfill(' '); break;
-	case LOG_LEVEL::_FATAL: tempString << "FATAL" << std::setw(10) << std::setfill(' '); break;
+	case LOG_LEVEL::_ERROR  : tempString << "ERROR"   << std::setw(10) << std::setfill(' '); break;
+	case LOG_LEVEL::_FATAL  : tempString << "FATAL"   << std::setw(10) << std::setfill(' '); break;
 	default: tempString << "UNKNOWN" << std::setw(10) << std::setfill(' '); break;
 	}
 	return tempString.str();
@@ -107,6 +107,9 @@ void Logger::Log(const std::string& _entry, const Logger::LOG_LEVEL& _logLevel) 
 	default:                  color += "37m";  break;
 	}
 	std::cout << color.c_str() << ss.str() << "\033[0m" << std::endl;
+#endif
+#if _DEBUG
+	std::cout << "LINE : " << m_line << std::endl;
 #endif
 }
 
