@@ -12,17 +12,13 @@
 * A singleton class that is used to display/log events at runtime.
 */
 class Logger {
-	//! Pointer to class instance.
-	static std::unique_ptr<Logger> m_pIinstance;
-#if defined WIN32 || defined WIN64
-	//! Flag to ensure that a routine is only called once.
-	static std::once_flag m_onceFlag;
-#endif
+	//! Class instance.
+	static Logger m_Instance;
 	//! Log entry counter
 	unsigned int m_line;
 
 	//! Default CTOR
-	Logger() = default;
+	Logger();
 	//! Deleted copy constructor
 	Logger(const Logger& _other) = delete;
 	//! Deleted assignment operator
@@ -79,6 +75,8 @@ public:
 * Logs the entry and exit points in the program.
 */
 class ScopeLogger {
+    //! The scope indicator
+    static std::string ScopeIndicator;
 	//! The entry to label the entry and exit points.
 	std::string m_entry;
 	//! Scope indicator
@@ -95,6 +93,10 @@ public:
 	virtual ~ScopeLogger();
 	//! Deleted assignment operator
 	ScopeLogger& operator =  (const ScopeLogger& _other) = delete;
+    //! Gets the current depth of the call stack
+    static unsigned int Depth();
+    //! Gets the scope indicator
+    static std::string& Scope();
 };
 
 //template<typename T>

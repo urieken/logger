@@ -9,33 +9,27 @@
 #include <Windows.h>
 #endif
 
-std::unique_ptr<Logger> Logger::m_pIinstance;
-#if defined WIN32 || defined WIN64
-std::once_flag Logger::m_onceFlag;
-#endif
+Logger Logger::m_Instance;
 
 Logger& Logger::Instance() {
-#if defined WIN32 || defined WIN64
-	std::call_once(m_onceFlag, [] {
-		m_pIinstance.reset(new Logger);
-	});
-#else
-		m_pIinstance.reset(new Logger);
-#endif
-	return *m_pIinstance.get();
+	return m_Instance;
 }
 
 void Logger::Initialize() {
 	m_line = 0;
 }
 
+Logger::Logger()
+    : m_line{0}{
+    }
+
 std::string Logger::getLogLevelString(const Logger::LOG_LEVEL& _logLevel) {
 	std::stringstream tempString{};
 	switch (_logLevel) {
-	case LOG_LEVEL::_INFO   : tempString << "INFO"    << std::setw(10) << std::setfill(' '); break;
+	case LOG_LEVEL::_INFO   : tempString << "___INFO"    << std::setw(10) << std::setfill(' '); break;
 	case LOG_LEVEL::_WARNING: tempString << "WARNING" << std::setw(10) << std::setfill(' '); break;
-	case LOG_LEVEL::_ERROR  : tempString << "ERROR"   << std::setw(10) << std::setfill(' '); break;
-	case LOG_LEVEL::_FATAL  : tempString << "FATAL"   << std::setw(10) << std::setfill(' '); break;
+	case LOG_LEVEL::_ERROR  : tempString << "__ERROR"   << std::setw(10) << std::setfill(' '); break;
+	case LOG_LEVEL::_FATAL  : tempString << "__FATAL"   << std::setw(10) << std::setfill(' '); break;
 	default: tempString << "UNKNOWN" << std::setw(10) << std::setfill(' '); break;
 	}
 	return tempString.str();
@@ -81,7 +75,7 @@ void Logger::Log(const std::string& _entry, const Logger::LOG_LEVEL& _logLevel) 
 	std::stringstream ss;
 	ss << "[" << std::setfill('0') << std::setw(8) << ++m_line << "]["
 		<< getTimeString() << "][" << getLogLevelString(_logLevel) << "]"
-		<< _entry;
+		<< ScopeLogger::Scope() << _entry;
 
 // Move this to a new class (LogWriter, ConsoleWriter, or FileWriter)
 #if defined WIN32 || defined WIN64
@@ -100,26 +94,35 @@ void Logger::Log(const std::string& _entry, const Logger::LOG_LEVEL& _logLevel) 
 #else
     std::string color{""};
 	switch (_logLevel) {
-	case LOG_LEVEL::_INFO:    color = "\033[32m]";  break;
-	case LOG_LEVEL::_WARNING: color = "\033[33m]";  break;
-	case LOG_LEVEL::_ERROR:   color = "\033[31m]";  break;
-	case LOG_LEVEL::_FATAL:   color = "\033[1;31m]"; break;
-	default:                  color = "\033[37m]";  break;
+	case LOG_LEVEL::_INFO:    color = "\033[32m";  break;
+	case LOG_LEVEL::_WARNING: color = "\033[33m";  break;
+	case LOG_LEVEL::_ERROR:   color = "\033[31m";  break;
+	case LOG_LEVEL::_FATAL:   color = "\033[1;31m"; break;
+	default:                  color = "\033[37m";  break;
 	}
 	std::cout << color.c_str() << ss.str() << "\033[0m" << std::endl;
 #endif
 }
 
 unsigned int ScopeLogger::DepthIndicator = 0;
+std::string ScopeLogger::ScopeIndicator;
 
 ScopeLogger::ScopeLogger(const std::string& _entry) : m_entry{ _entry } {
-	std::string scopeIndicator{ "[]" }; 
-	scopeIndicator.insert(1, ++DepthIndicator, '>');
-	LOG_INFO(scopeIndicator + m_entry);
+    ScopeIndicator = "[]"; 
+	ScopeIndicator.insert(1, ++DepthIndicator, '>');
+    Logger::Instance().Log(m_entry, Logger::LOG_LEVEL::_INFO);
 }
 
 ScopeLogger::~ScopeLogger() {
-	std::string scopeIndicator{ "[]" }; 
-	scopeIndicator.insert(1, DepthIndicator--, '<');
-	LOG_INFO(scopeIndicator + m_entry);
+	ScopeIndicator = "[]"; 
+	ScopeIndicator.insert(1, DepthIndicator--, '<');
+    Logger::Instance().Log(m_entry, Logger::LOG_LEVEL::_INFO);
+}
+
+unsigned int ScopeLogger::Depth(){
+    return DepthIndicator;
+}
+
+std::string& ScopeLogger::Scope(){
+    return ScopeIndicator;
 }
