@@ -95,17 +95,19 @@ void Logger::Log(const std::string& _entry, const Logger::LOG_LEVEL& _logLevel) 
 	default:                  color = 7;  break;
 	}
 	::SetConsoleTextAttribute(hConsole, color);
-#else
-    std::string color{"\033["};
-	switch (_logLevel) {
-	case LOG_LEVEL::_INFO:    color += "32m";  break;
-	case LOG_LEVEL::_WARNING: color += "33m";  break;
-	case LOG_LEVEL::_ERROR:   color += "31m";  break;
-	case LOG_LEVEL::_FATAL:   color += "1;31m"; break;
-	default:                  color += "37m";  break;
-	}
-#endif
 	std::cout << ss.str() << std::endl;
+	::SetConsoleTextAttribute(hConsole, 7);	
+#else
+    std::string color{""};
+	switch (_logLevel) {
+	case LOG_LEVEL::_INFO:    color = "\033[32m]";  break;
+	case LOG_LEVEL::_WARNING: color = "\033[33m]";  break;
+	case LOG_LEVEL::_ERROR:   color = "\033[31m]";  break;
+	case LOG_LEVEL::_FATAL:   color = "\033[1;31m]"; break;
+	default:                  color = "\033[37m]";  break;
+	}
+	std::cout << color.c_str() << ss.str() << "\033[0m" << std::endl;
+#endif
 }
 
 unsigned int ScopeLogger::DepthIndicator = 0;
