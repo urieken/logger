@@ -108,9 +108,6 @@ void Logger::Log(const std::string& _entry, const Logger::LOG_LEVEL& _logLevel) 
 	}
 	std::cout << color.c_str() << ss.str() << "\033[0m" << std::endl;
 #endif
-#if _DEBUG
-	std::cout << "LINE : " << m_line << std::endl;
-#endif
 }
 
 unsigned int ScopeLogger::DepthIndicator = 0;
