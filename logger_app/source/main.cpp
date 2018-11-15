@@ -2,6 +2,7 @@
 
 int main(int argc, char** argv) {
 	int nReturn{ 0 };
+    Logger::Instance().Initialize();
 	{
 		LOG_SCOPE(__FUNCTION__);
 		LOG_INFO(std::string("ARGUMENT COUNT : ") + std::to_string(argc));

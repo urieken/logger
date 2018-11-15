@@ -3,3 +3,6 @@
 /bin-int
 /logger/*.user
 /logger_app/*.user
+/build
+/logger/build 
+/logger_app/build 

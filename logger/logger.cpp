@@ -10,12 +10,18 @@
 #endif
 
 std::unique_ptr<Logger> Logger::m_pIinstance;
+#if defined WIN32 || defined WIN64
 std::once_flag Logger::m_onceFlag;
+#endif
 
 Logger& Logger::Instance() {
+#if defined WIN32 || defined WIN64
 	std::call_once(m_onceFlag, [] {
 		m_pIinstance.reset(new Logger);
 	});
+#else
+		m_pIinstance.reset(new Logger);
+#endif
 	return *m_pIinstance.get();
 }
 
@@ -73,14 +79,13 @@ std::string Logger::getTimeString() {
 
 void Logger::Log(const std::string& _entry, const Logger::LOG_LEVEL& _logLevel) {
 	std::stringstream ss;
-	ss << "[" << std::setfill('0') << std::setw(6) << ++m_line << "]["
+	ss << "[" << std::setfill('0') << std::setw(8) << ++m_line << "]["
 		<< getTimeString() << "][" << getLogLevelString(_logLevel) << "]"
 		<< _entry;
 
 // Move this to a new class (LogWriter, ConsoleWriter, or FileWriter)
 #if defined WIN32 || defined WIN64
 	HANDLE hConsole = ::GetStdHandle(STD_OUTPUT_HANDLE);
-	
 	int color = 10;
 	switch (_logLevel) {
 	case LOG_LEVEL::_INFO:    color = 2;  break;
@@ -89,15 +94,19 @@ void Logger::Log(const std::string& _entry, const Logger::LOG_LEVEL& _logLevel) 
 	case LOG_LEVEL::_FATAL:   color = 12; break;
 	default:                  color = 7;  break;
 	}
-
 	::SetConsoleTextAttribute(hConsole, color);
 	std::cout << ss.str() << std::endl;
 	::SetConsoleTextAttribute(hConsole, 7);	
 #else
-	std::cout << "\033[1;31m[" << std::setfill('0') << std::setw(6) << ++m_line
-		<< "][" << getTimeString() << "]["
-		<< getLogLevelString(_logLevel) << "]"
-		<< _entry << "\033[0m" << std::endl;
+    std::string color{"\033["};
+	switch (_logLevel) {
+	case LOG_LEVEL::_INFO:    color += "32m";  break;
+	case LOG_LEVEL::_WARNING: color += "33m";  break;
+	case LOG_LEVEL::_ERROR:   color += "31m";  break;
+	case LOG_LEVEL::_FATAL:   color += "1;31m"; break;
+	default:                  color += "37m";  break;
+	}
+	std::cout << color.c_str() << ss.str() << "\033[0m" << std::endl;
 #endif
 }
 

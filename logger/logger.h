@@ -14,8 +14,10 @@
 class Logger {
 	//! Pointer to class instance.
 	static std::unique_ptr<Logger> m_pIinstance;
+#if defined WIN32 || defined WIN64
 	//! Flag to ensure that a routine is only called once.
 	static std::once_flag m_onceFlag;
+#endif
 	//! Log entry counter
 	unsigned int m_line;
 
