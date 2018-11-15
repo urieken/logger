@@ -18,6 +18,9 @@ int main(int argc, char** argv) {
     foo1();
     foo2();
     foo3();
+
+	std::cin.get();
+
     return nReturn;
 }
 
