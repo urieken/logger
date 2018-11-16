@@ -1,9 +1,10 @@
 #ifndef __LOGGER_H__
 #define __LOGGER_H__
 
+#include <cstdio>
 #include <memory>
-#include <mutex>
 #include <string>
+#include <cstdarg>
 #include <sstream>
 #include <iostream>
 
@@ -23,6 +24,12 @@ class Logger {
 	Logger(const Logger& _other) = delete;
 	//! Deleted assignment operator
 	Logger& operator=(const Logger& _other) = delete;
+	/*! \Brief Convert integer number into octal, hex, etc.
+	*
+	* \param number The number to be converted
+	* \param base The base for the number to be converted into
+	*/
+	char* Convert(unsigned int number, int base);
 public:
 	/*! \brief Log level enumeration.
 	*
@@ -61,13 +68,21 @@ public:
 	* \sa Logger::LOG_LEVEL
 	*/
 	std::string getLogLevelString(const Logger::LOG_LEVEL& _logLevel);
-	/*! \brief Returns the log level string.
+	/*! \brief Prints the log entry.
 	*
 	* \param _entry The information to entered into the log.
 	* \param _logLevel The log level value.
 	* \sa Logger::LOG_LEVEL
 	*/
 	void Log(const std::string& _entry, const Logger::LOG_LEVEL& _logLevel);
+
+	/*! \brief Prints the log entry.
+	*
+	* \param _entry The information to entered into the log.
+	* \param _logLevel The log level value.
+	* \sa Logger::LOG_LEVEL
+	*/
+	void Log(char* format, const Logger::LOG_LEVEL& _logLevel, ...);
 };
 
 /*! \brief Log Helper for scope

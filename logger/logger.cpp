@@ -104,6 +104,73 @@ void Logger::Log(const std::string& _entry, const Logger::LOG_LEVEL& _logLevel) 
 #endif
 }
 
+char* Logger::Convert(unsigned int number, int base) {
+	static char values[] = "0123456789ABCDEF";
+	static char buffer[50];
+	char* ptr;
+
+	ptr = &buffer[49];
+	*ptr = '\0';
+
+	do {
+		*--ptr = values[number % base];
+		number /= base;
+	} while (number != 0);
+
+	return  ptr;
+}
+
+void Logger::Log(char* format, const Logger::LOG_LEVEL& _logLevel, ...) {
+	char* traverse;
+	unsigned int i;
+	char* s;
+
+	// Initialize arguments
+	va_list arg;
+	va_start(arg, format);
+
+	for (traverse = format; *traverse != '\0'; traverse++) {
+		while (*traverse != '%') {
+			std::putchar(*traverse);
+			traverse++;
+		}
+		traverse++;
+		// Fetching and executing arguments
+		switch (*traverse) {
+		case 'c': {
+			// Fetch char argument
+			i = va_arg(arg, int);
+			std::putchar(i);
+		}break;
+			// Fetch decimal/integer argument
+		case 'd': {
+			i = va_arg(arg, int);
+			if (0 > i) {
+				i = -i;
+				std::putchar('-');
+			}
+			std::puts(Convert(i, 10));
+		}break;
+			// Fetch octal representation
+		case 'o': {
+			i = va_arg(arg, unsigned int);
+			std::puts(Convert(i, 8));
+		}break;
+			// Fetch string
+		case 's': {
+			s = va_arg(arg, char*);
+			std::puts(s);
+		}break;
+		case 'x': {
+			i = va_arg(arg, unsigned int);
+			std::puts(Convert(i, 16));
+		}break;
+		}
+	}
+	// Clean-up
+	va_end(arg);
+}
+
 unsigned int ScopeLogger::DepthIndicator = 0;
 std::string ScopeLogger::ScopeIndicator;
 
