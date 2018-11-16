@@ -19,6 +19,9 @@ int main(int argc, char** argv) {
     foo2();
     foo3();
 
+	//for(int i = 0; i < 10; i++)
+	//	Logger::Instance().LogFormat("VALUE : %d\n", Logger::LOG_LEVEL::_INFO, i);
+
 	std::cin.get();
 
     return nReturn;

@@ -29,7 +29,7 @@ class Logger {
 	* \param number The number to be converted
 	* \param base The base for the number to be converted into
 	*/
-	char* Convert(unsigned int number, int base);
+	//char* Convert(unsigned int number, int base);
 public:
 	/*! \brief Log level enumeration.
 	*
@@ -82,7 +82,7 @@ public:
 	* \param _logLevel The log level value.
 	* \sa Logger::LOG_LEVEL
 	*/
-	void Log(char* format, const Logger::LOG_LEVEL& _logLevel, ...);
+	//void LogFormat(const std::string& format, const Logger::LOG_LEVEL& _logLevel, ...);
 };
 
 /*! \brief Log Helper for scope
