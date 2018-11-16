@@ -1,9 +1,11 @@
 #include "logger.h"
 
-#include<ctime>
-#include<chrono>
-#include<iomanip>
-#include<sstream>
+#include <ctime>
+#include <chrono>
+#include <cstdio>
+#include <cstdarg>
+#include <iomanip>
+#include <sstream>
 
 #if defined WIN32 || defined WIN64
 #include <Windows.h>
@@ -104,85 +106,82 @@ void Logger::Log(const std::string& _entry, const Logger::LOG_LEVEL& _logLevel) 
 #endif
 }
 
-//char* Logger::Convert(unsigned int number, int base) {
-//	static char values[] = "0123456789ABCDEF";
-//	static char buffer[50];
-//	char* ptr;
-//
-//	ptr = &buffer[49];
-//	*ptr = '\0';
-//
-//	do {
-//		*--ptr = values[number % base];
-//		number /= base;
-//	} while (number != 0);
-//
-//	return  ptr;
-//}
+char* Logger::Convert(unsigned int number, int base) {
+	static char values[] = "0123456789ABCDEF";
+	static char buffer[50];
+	char* ptr;
 
-//void Logger::LogFormat(const std::string& format, const Logger::LOG_LEVEL& _logLevel, ...) {
-//	//char* traverse;
-//	unsigned int i;
-//	char* s;
-//
-//	// Initialize arguments
-//	va_list arg;
-//	va_start(arg, format.c_str());
-//
-//	for (const char* traverse = format.c_str(); *traverse != '\0'; traverse++) {
-//		while (*traverse != '%') {
-//			std::putchar(*traverse);
-//			traverse++;
-//		}
-//		traverse++;
-//		// Fetching and executing arguments
-//		switch (*traverse) {
-//		case 'c': {
-//			// Fetch char argument
-//			i = va_arg(arg, int);
-//			std::putchar(i);
-//		}break;
-//			// Fetch decimal/integer argument
-//		case 'd': {
-//			i = va_arg(arg, int);
-//			//if (0 > i) {
-//			//	i = -i;
-//			//	std::putchar('-');
-//			//}
-//			std::puts(Convert(i, 10));
-//		}break;
-//			// Fetch octal representation
-//		case 'o': {
-//			i = va_arg(arg, unsigned int);
-//			std::puts(Convert(i, 8));
-//		}break;
-//			// Fetch string
-//		case 's': {
-//			s = va_arg(arg, char*);
-//			std::puts(s);
-//		}break;
-//		case 'x': {
-//			i = va_arg(arg, unsigned int);
-//			std::puts(Convert(i, 16));
-//		}break;
-//		}
-//	}
-//	// Clean-up
-//	va_end(arg);
-//}
+	ptr = &buffer[49];
+	*ptr = '\0';
+
+	do {
+		*--ptr = values[number % base];
+		number /= base;
+	} while (number != 0);
+
+	return  ptr;
+}
+
+void Logger::LogFormat(const Logger::LOG_LEVEL& _logLevel, const char* format, ...) {
+	std::stringstream ss;
+	va_list args;
+	va_start(args, format);
+	while (*format != '\0') {
+		if ('%' == *format) {
+			++format;
+			if ('d' == *format) {
+				int i = va_arg(args, int);
+				//std::cout << i << '\n';
+				ss << i;
+			}
+			else if ('o' == *format) {
+				int i = va_arg(args, int);
+				//std::cout << Convert(i, 8) << '\n';
+				ss << Convert(i, 8);
+			}
+			else if ('x' == *format) {
+				int i = va_arg(args, int);
+				//std::cout << Convert(i, 8) << '\n';
+				ss << Convert(i, 16);
+			}
+			else if ('c' == *format) {
+				int c = va_arg(args, int);
+				//std::cout << static_cast<char>(c) << '\n';
+				ss << static_cast<char>(c);
+			}
+			else if ('s' == *format) {
+				char* s = va_arg(args, char*);
+				//std::cout << static_cast<char>(c) << '\n';
+				ss << s;
+			}
+			else if ('f' == *format) {
+				double d = va_arg(args, double);
+				//std::cout << d << '\n';
+				ss << d;
+			}
+		}
+		else {
+			ss << *format;
+		}
+		++format;
+	}
+	va_end(args);
+	//std::cout << ss.str() << std::endl;
+	Log(ss.str(), _logLevel);
+}
 
 unsigned int ScopeLogger::DepthIndicator = 0;
 std::string ScopeLogger::ScopeIndicator;
 
 ScopeLogger::ScopeLogger(const std::string& _entry) : m_entry{ _entry } {
     ScopeIndicator = "[]"; 
-	ScopeIndicator.insert(1, ++DepthIndicator, '>');
+	ScopeIndicator.insert(1, ++DepthIndicator, '.');
     Logger::Instance().Log(m_entry, Logger::LOG_LEVEL::_INFO);
 }
 
 ScopeLogger::~ScopeLogger() {
 	ScopeIndicator = "[]"; 
-	ScopeIndicator.insert(1, DepthIndicator--, '<');
+	ScopeIndicator.insert(1, DepthIndicator--, '.');
     Logger::Instance().Log(m_entry, Logger::LOG_LEVEL::_INFO);
 }
 

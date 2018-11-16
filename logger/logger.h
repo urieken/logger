@@ -29,7 +29,7 @@ class Logger {
 	* \param number The number to be converted
 	* \param base The base for the number to be converted into
 	*/
-	//char* Convert(unsigned int number, int base);
+	char* Convert(unsigned int number, int base);
 public:
 	/*! \brief Log level enumeration.
 	*
@@ -82,7 +82,7 @@ public:
 	* \param _logLevel The log level value.
 	* \sa Logger::LOG_LEVEL
 	*/
-	//void LogFormat(const std::string& format, const Logger::LOG_LEVEL& _logLevel, ...);
+	void LogFormat(const Logger::LOG_LEVEL& _logLevel, const char* format, ...);
 };
 
 /*! \brief Log Helper for scope
@@ -134,10 +134,16 @@ constexpr auto LOG(T1 a, T2 b) { return Logger::Instance().Log(a, b); }
 
 #if _DEBUG // Or Non distibution build
 #define LOG_SCOPE(a)    ScopeLogger scopeLogger(a)
-#define LOG_INFO(a)     LOG(a, Logger::LOG_LEVEL::_INFO)
-#define LOG_WARNING(a)  LOG(a, Logger::LOG_LEVEL::_WARNING)
-#define LOG_ERROR(a)    LOG(a, Logger::LOG_LEVEL::_ERROR)
-#define LOG_FATAL(a)    LOG(a, Logger::LOG_LEVEL::_FATAL)
+//#define LOG_INFO(a)     LOG(a, Logger::LOG_LEVEL::_INFO)
+//#define LOG_WARNING(a)  LOG(a, Logger::LOG_LEVEL::_WARNING)
+//#define LOG_ERROR(a)    LOG(a, Logger::LOG_LEVEL::_ERROR)
+//#define LOG_FATAL(a)    LOG(a, Logger::LOG_LEVEL::_FATAL)
+
+#define LOG_INFO(a, ...) Logger::Instance().LogFormat(Logger::LOG_LEVEL::_INFO, a, ##__VA_ARGS__)
+#define LOG_WARNING(a, ...) Logger::Instance().LogFormat(Logger::LOG_LEVEL::_WARNING, a, ##__VA_ARGS__)
+#define LOG_ERROR(a, ...) Logger::Instance().LogFormat(Logger::LOG_LEVEL::_ERROR, a, ##__VA_ARGS__)
+#define LOG_FATAL(a, ...) Logger::Instance().LogFormat(Logger::LOG_LEVEL::_FATAL, a, ##__VA_ARGS__)
+
 #else
 #define LOG_SCOPE(a)    (void)(a)
 #define LOG_INFO(a)     (void)(a)

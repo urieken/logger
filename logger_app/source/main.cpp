@@ -12,15 +12,34 @@ int main(int argc, char** argv) {
     Logger::Instance().Initialize();
     LOG_SCOPE(__FUNCTION__);
     
-    LOG_INFO(std::string("ARGUMENT COUNT : ") + std::to_string(argc));
-    LOG_WARNING(std::string("PROGRAM        : ") + argv[0]);
+    LOG_INFO("ARGUMENT COUNT : %d", argc);
+    LOG_WARNING("PROGRAM        : %s", argv[0]);
 
     foo1();
     foo2();
     foo3();
 
-	//for(int i = 0; i < 10; i++)
-	//	Logger::Instance().LogFormat("VALUE : %d\n", Logger::LOG_LEVEL::_INFO, i);
+	Logger::Instance().LogFormat(Logger::LOG_LEVEL::_INFO,
+		"First argument : %d2 Second argument : %c Third argument : %f Fourth argument : %f",
+		3, 'a', 1.999, 42.5);
+
+	LOG_INFO("First argument : %d2 Second argument : %c Third argument : %f Fourth argument : %f",
+		3, 'a', 1.999, 42.5);
+	LOG_WARNING("First argument : %d2 Second argument : %c Third argument : %f Fourth argument : %f",
+		3, 'a', 1.999, 42.5);
+	LOG_ERROR("First argument : %d2 Second argument : %c Third argument : %f Fourth argument : %f",
+		3, 'a', 1.999, 42.5);
+	LOG_FATAL("First argument : %d2 Second argument : %c Third argument : %f Fourth argument : %f",
+		3, 'a', 1.999, 42.5);
+
+	Logger::Instance().LogFormat(Logger::LOG_LEVEL::_WARNING,
+		"Decimal : %d, Octal : %o, Hexadecimal : %x", 14, 14, 14);
+
+	Logger::Instance().LogFormat(Logger::LOG_LEVEL::_ERROR,
+		"String : %s", "XXXXXXXXX");
+
+	Logger::Instance().LogFormat(Logger::LOG_LEVEL::_FATAL,
+		"String : %s", "SOME SORT OF ERROR");
 
 	std::cin.get();
 
